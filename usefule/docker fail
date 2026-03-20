@@ -1,0 +1,15 @@
+set DOCKER_HOST=
+set DOCKER_CERT_PATH=
+set DOCKER_TLS_VERIFY=
+
+# Посмотреть текущий контекст
+docker context ls
+
+# Если контекст не default, переключитесь
+docker context use default
+
+# Посмотреть текущий контекст
+docker context ls
+
+# Если контекст не default, переключитесь
+docker context use default

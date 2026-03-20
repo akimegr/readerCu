@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: newsapp
+      POSTGRES_USER: newsapp
+      POSTGRES_PASSWORD: newsapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  app:
+    build:
+      context: ..
+      dockerfile: app/Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://newsapp:newsapp@postgres:5432/newsapp
+      - REDIS_URL=redis://redis:6379/0
+      - BACKEND_BASE_URL=http://app:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+
+  reader:
+    build:
+      context: ..
+      dockerfile: reader/Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://newsapp:newsapp@postgres:5432/newsapp
+      - REDIS_URL=redis://redis:6379/0
+      - BACKEND_BASE_URL=http://app:8000
+    depends_on:
+      - app
+      - postgres
+      - redis
+    volumes:
+      - ./sessions:/code/sessions  # Создайте папку sessions локально
+
+volumes:
+  pgdata:
+
